@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useTransition } from "react";
 import Link from "next/link";
-import { FileText, GitBranch, Loader2, Eye, EyeOff } from "lucide-react";
+import { GitBranch, Loader2, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { signIn, signInWithGitHub } from "@/lib/auth/actions";
 
 export default function LoginPage() {
@@ -29,91 +29,84 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#111113] flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4"
+      style={{ background: "#0c0c0e", fontFamily: "'Inter', sans-serif" }}>
       <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center">
-            <FileText size={16} className="text-white" />
-          </div>
-          <span className="text-lg font-bold text-white">BillForge</span>
-        </div>
+        <Link href="/" className="flex items-center justify-center gap-2.5 mb-10">
+          <svg width="26" height="26" viewBox="0 0 22 22" fill="none">
+            <rect width="22" height="22" rx="5" fill="#f97316"/>
+            <path d="M6 7h6M6 11h10M6 15h8" stroke="white" strokeWidth="1.7" strokeLinecap="round"/>
+          </svg>
+          <span className="font-semibold text-base tracking-tight" style={{ color: "#f0eeec" }}>BillForge</span>
+        </Link>
 
-        <div className="bg-zinc-900/60 border border-white/[0.08] rounded-2xl p-8">
-          <h1 className="text-xl font-bold text-white mb-1">Welcome back</h1>
-          <p className="text-sm text-zinc-500 mb-6">Sign in to your account</p>
+        <div className="rounded-2xl p-7"
+          style={{ background: "#0f0f12", border: "1px solid rgba(255,255,255,0.07)" }}>
+          <h1 className="text-lg font-semibold mb-0.5" style={{ color: "#f0eeec" }}>Welcome back</h1>
+          <p className="text-[13px] mb-6" style={{ color: "#555" }}>Sign in to your account</p>
 
           {error && (
-            <div className="mb-4 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+            <div className="mb-4 px-3 py-2.5 rounded-lg text-[13px]"
+              style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.15)", color: "#f87171" }}>
               {error}
             </div>
           )}
 
-          {/* GitHub OAuth */}
-          <button
-            onClick={handleGitHub}
-            disabled={isGitBranchPending}
-            className="w-full flex items-center justify-center gap-2.5 h-10 rounded-lg border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] text-sm text-zinc-200 font-medium transition-colors mb-4 disabled:opacity-50"
-          >
-            {isGitBranchPending ? (
-              <Loader2 size={15} className="animate-spin" />
-            ) : (
-              <GitBranch size={15} />
-            )}
+          {/* GitHub */}
+          <button onClick={handleGitHub} disabled={isGitBranchPending}
+            className="w-full flex items-center justify-center gap-2.5 h-9 rounded-lg text-sm font-medium transition-all mb-4 disabled:opacity-50"
+            style={{ border: "1px solid rgba(255,255,255,0.09)", background: "rgba(255,255,255,0.04)", color: "#aaa" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)"; (e.currentTarget as HTMLElement).style.color = "#f0eeec"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLElement).style.color = "#aaa"; }}>
+            {isGitBranchPending ? <Loader2 size={14} className="animate-spin" /> : <GitBranch size={14} />}
             Continue with GitHub
           </button>
 
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 h-px bg-white/[0.06]" />
-            <span className="text-xs text-zinc-600">or</span>
-            <div className="flex-1 h-px bg-white/[0.06]" />
+            <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.05)" }} />
+            <span className="text-[11px]" style={{ color: "#444" }}>or</span>
+            <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.05)" }} />
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="block text-xs text-zinc-400 font-medium mb-1.5">Email</label>
-              <input
-                name="email"
-                type="email"
-                required
-                placeholder="you@example.com"
-                className="w-full h-10 px-3 rounded-lg bg-zinc-800/80 border border-white/[0.08] text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500/50 transition-colors"
-              />
+              <label className="block text-[12px] font-medium mb-1.5" style={{ color: "#666" }}>Email</label>
+              <input name="email" type="email" required placeholder="you@example.com"
+                className="w-full h-9 px-3 rounded-lg text-sm outline-none transition-all"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", color: "#f0eeec" }}
+                onFocus={(e) => { e.target.style.borderColor = "rgba(249,115,22,0.4)"; }}
+                onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.07)"; }} />
             </div>
             <div>
-              <label className="block text-xs text-zinc-400 font-medium mb-1.5">Password</label>
+              <label className="block text-[12px] font-medium mb-1.5" style={{ color: "#666" }}>Password</label>
               <div className="relative">
-                <input
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  placeholder="••••••••"
-                  className="w-full h-10 px-3 pr-10 rounded-lg bg-zinc-800/80 border border-white/[0.08] text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500/50 transition-colors"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
-                >
-                  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                <input name="password" type={showPassword ? "text" : "password"} required placeholder="••••••••"
+                  className="w-full h-9 px-3 pr-9 rounded-lg text-sm outline-none transition-all"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", color: "#f0eeec" }}
+                  onFocus={(e) => { e.target.style.borderColor = "rgba(249,115,22,0.4)"; }}
+                  onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.07)"; }} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: "#555" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#aaa"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#555"; }}>
+                  {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
                 </button>
               </div>
             </div>
-
-            <button
-              type="submit"
-              disabled={isPending}
-              className="w-full h-10 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm text-white font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {isPending && <Loader2 size={14} className="animate-spin" />}
-              Sign in
+            <button type="submit" disabled={isPending}
+              className="w-full h-9 rounded-lg text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50 flex items-center justify-center gap-2 mt-1"
+              style={{ background: "#f97316" }}>
+              {isPending && <Loader2 size={13} className="animate-spin" />}
+              Sign in <ArrowRight size={13} />
             </button>
           </form>
         </div>
 
-        <p className="text-center text-sm text-zinc-600 mt-6">
+        <p className="text-center text-[13px] mt-5" style={{ color: "#555" }}>
           Don&apos;t have an account?{" "}
-          <Link href="/auth/signup" className="text-indigo-400 hover:text-indigo-300 font-medium">
+          <Link href="/auth/signup" className="font-medium transition-colors" style={{ color: "#f97316" }}>
             Sign up
           </Link>
         </p>

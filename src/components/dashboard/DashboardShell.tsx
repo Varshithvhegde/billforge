@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, LayoutDashboard, Settings, LogOut, Plus, User, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Settings, LogOut, Plus, User, BarChart3 } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { signOut } from "@/lib/auth/actions";
 import { cn } from "@/lib/utils";
@@ -25,24 +25,26 @@ export function DashboardShell({ user, children }: Props) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-[#111113] flex">
+    <div className="min-h-screen flex" style={{ background: "#0c0c0e", fontFamily: "'Inter', sans-serif" }}>
       {/* Sidebar */}
-      <aside className="w-56 flex-shrink-0 border-r border-white/[0.06] flex flex-col">
+      <aside className="w-56 flex-shrink-0 flex flex-col" style={{ borderRight: "1px solid rgba(255,255,255,0.05)" }}>
         {/* Logo */}
-        <div className="h-14 flex items-center px-4 border-b border-white/[0.06]">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <FileText size={14} className="text-white" />
-            </div>
-            <span className="font-bold text-white text-sm">BillForge</span>
+        <div className="h-14 flex items-center px-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect width="22" height="22" rx="5" fill="#f97316"/>
+              <path d="M6 7h6M6 11h10M6 15h8" stroke="white" strokeWidth="1.7" strokeLinecap="round"/>
+            </svg>
+            <span className="font-semibold text-sm tracking-tight" style={{ color: "#f0eeec" }}>BillForge</span>
           </Link>
         </div>
 
         {/* New button */}
-        <div className="px-3 py-3 border-b border-white/[0.06]">
+        <div className="px-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
           <Link
             href="/builder"
-            className="flex items-center gap-2 w-full h-8 px-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold text-white transition-colors"
+            className="flex items-center justify-center gap-1.5 w-full h-8 rounded-md text-xs font-semibold text-white transition-all hover:brightness-110"
+            style={{ background: "#f97316" }}
           >
             <Plus size={13} />
             New Document
@@ -51,58 +53,67 @@ export function DashboardShell({ user, children }: Props) {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-3 space-y-0.5">
-          {NAV.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex items-center gap-2.5 px-3 h-8 rounded-lg text-xs font-medium transition-colors",
-                pathname === href
-                  ? "bg-white/[0.08] text-white"
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
-              )}
-            >
-              <Icon size={14} />
-              {label}
-            </Link>
-          ))}
+          {NAV.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex items-center gap-2.5 px-3 h-8 rounded-md text-xs font-medium transition-all",
+                )}
+                style={{
+                  background: active ? "rgba(249,115,22,0.1)" : "transparent",
+                  color: active ? "#f97316" : "#666",
+                  border: active ? "1px solid rgba(249,115,22,0.15)" : "1px solid transparent",
+                }}
+                onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = "#f0eeec"; }}
+                onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = "#666"; }}
+              >
+                <Icon size={14} />
+                {label}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Settings + User */}
-        <div className="px-3 pb-4 space-y-0.5 border-t border-white/[0.06] pt-3">
-          {SETTINGS_NAV.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex items-center gap-2.5 px-3 h-8 rounded-lg text-xs font-medium transition-colors",
-                pathname === href
-                  ? "bg-white/[0.08] text-white"
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
-              )}
-            >
-              <Icon size={14} />
-              {label}
-            </Link>
-          ))}
+        {/* Bottom */}
+        <div className="px-3 pb-4 pt-3 space-y-0.5" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          {SETTINGS_NAV.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className="flex items-center gap-2.5 px-3 h-8 rounded-md text-xs font-medium transition-all"
+                style={{ color: active ? "#f0eeec" : "#555" }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "#f0eeec"; }}
+                onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = "#555"; }}
+              >
+                <Icon size={14} />
+                {label}
+              </Link>
+            );
+          })}
 
           {/* User row */}
-          <div className="flex items-center gap-2.5 px-3 pt-3 mt-2 border-t border-white/[0.06]">
-            <div className="w-6 h-6 rounded-full bg-indigo-600/30 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
-              <User size={11} className="text-indigo-300" />
+          <div className="flex items-center gap-2.5 px-3 pt-3 mt-1" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+            <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.25)" }}>
+              <User size={11} style={{ color: "#f97316" }} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[11px] text-zinc-300 font-medium truncate">
+              <div className="text-[11px] font-medium truncate" style={{ color: "#f0eeec" }}>
                 {user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User"}
               </div>
-              <div className="text-[10px] text-zinc-600 truncate">{user?.email}</div>
+              <div className="text-[10px] truncate" style={{ color: "#444" }}>{user?.email}</div>
             </div>
             <form action={signOut}>
-              <button
-                type="submit"
-                className="text-zinc-600 hover:text-zinc-300 transition-colors"
-                title="Sign out"
-              >
+              <button type="submit" title="Sign out"
+                className="transition-colors"
+                style={{ color: "#444" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#f0eeec"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#444"; }}>
                 <LogOut size={13} />
               </button>
             </form>
@@ -110,7 +121,7 @@ export function DashboardShell({ user, children }: Props) {
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main */}
       <main className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto px-8 py-8">
           {children}

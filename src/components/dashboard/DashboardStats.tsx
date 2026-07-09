@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { FileText, Send, CheckCircle, IndianRupee } from "lucide-react";
+import { FileText, Send, Lightbulb, IndianRupee } from "lucide-react";
 
 interface Props {
   stats: {
@@ -16,27 +16,47 @@ export function DashboardStats({ stats }: Props) {
   if (stats.total === 0) return null;
 
   const items = [
-    { label: "Total Documents", value: stats.total, icon: FileText, color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
-    { label: "Invoices", value: stats.invoices, icon: Send, color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20" },
-    { label: "Proposals", value: stats.proposals, icon: FileText, color: "text-sky-400", bg: "bg-sky-500/10 border-sky-500/20" },
+    {
+      label: "Total Documents",
+      value: stats.total,
+      icon: FileText,
+      accent: "#a78bfa",
+    },
+    {
+      label: "Invoices",
+      value: stats.invoices,
+      icon: Send,
+      accent: "#60a5fa",
+    },
+    {
+      label: "Proposals",
+      value: stats.proposals,
+      icon: Lightbulb,
+      accent: "#f97316",
+    },
     {
       label: "Total Collected",
       value: new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(stats.totalValue),
       icon: IndianRupee,
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/10 border-emerald-500/20",
+      accent: "#4ade80",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      {items.map((item) => (
-        <div key={item.label} className={`rounded-xl border ${item.bg} p-4`}>
-          <div className={`${item.color} mb-2`}>
-            <item.icon size={16} />
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+      {items.map(({ label, value, icon: Icon, accent }) => (
+        <div key={label} className="rounded-xl p-4"
+          style={{ background: "#0f0f12", border: "1px solid rgba(255,255,255,0.05)" }}>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-medium uppercase tracking-widest" style={{ color: "#555" }}>{label}</span>
+            <div className="w-7 h-7 rounded-md flex items-center justify-center"
+              style={{ background: `${accent}15` }}>
+              <Icon size={13} style={{ color: accent }} />
+            </div>
           </div>
-          <div className="text-xl font-bold text-white">{item.value}</div>
-          <div className="text-xs text-zinc-500 mt-0.5">{item.label}</div>
+          <div className="text-2xl font-bold tracking-tight" style={{ color: "#f0eeec", fontFamily: "'Instrument Serif', serif" }}>
+            {value}
+          </div>
         </div>
       ))}
     </div>
