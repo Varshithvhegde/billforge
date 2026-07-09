@@ -26,6 +26,7 @@ const defaultInvoice: InvoiceData = {
   enableDiscount: false,
   discountType: "percent",
   discountValue: 0,
+  showBranding: true,
   notes: "Thank you for your business!",
   terms: "Payment due within 15 days of invoice date.",
   bankDetails: { bankName: "", accountName: "", accountNumber: "", ifscCode: "", upiId: "" },

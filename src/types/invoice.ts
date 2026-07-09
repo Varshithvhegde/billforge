@@ -65,6 +65,8 @@ export interface InvoiceData {
   validUntil: string;
   projectTitle: string;
   projectScope: string;
+  // Branding
+  showBranding: boolean;
   // Signature
   signatureName: string;
   signatureImage?: string; // base64 data URL
