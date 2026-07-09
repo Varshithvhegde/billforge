@@ -12,7 +12,7 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 import type { InvoiceData, TemplateId } from "@/types/invoice";
 
 function BuilderInner() {
-  const { data, templateId, update, setTemplate } = useInvoiceStore();
+  const { data, templateId, update, setTemplate, reset } = useInvoiceStore();
   const searchParams = useSearchParams();
   const docId = searchParams.get("id");
   const loadedRef = useRef<string | null>(null);
@@ -21,6 +21,15 @@ function BuilderInner() {
     lastSaved: Date | null;
   }>({ status: "idle", lastSaved: null });
   const [initialShareToken, setInitialShareToken] = useState<string | null>(null);
+
+  // No ?id= → new document, clear any stale localStorage data
+  useEffect(() => {
+    if (!docId) {
+      reset();
+      loadedRef.current = null;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // only on mount — intentionally not re-running on docId change
 
   // Load document from Supabase when ?id= is present
   useEffect(() => {
