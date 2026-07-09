@@ -1,6 +1,6 @@
 import React from "react";
 import type { TemplateProps } from "./shared";
-import { LineItemsTable, TotalsBlock } from "./shared";
+import { LineItemsTable, TotalsBlock, BankBlock } from "./shared";
 
 export function SlateTemplate({ data, totals, formatCurrency, formatDate }: TemplateProps) {
   const isProposal = data.documentType === "proposal";
@@ -55,16 +55,7 @@ export function SlateTemplate({ data, totals, formatCurrency, formatDate }: Temp
       <TotalsBlock data={data} totals={totals} formatCurrency={formatCurrency} formatDate={formatDate} />
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, marginTop: 48 }}>
-        {(data.bankDetails.bankName || data.bankDetails.upiId) && (
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 10 }}>Payment Details</div>
-            {data.bankDetails.bankName && <div style={{ fontSize: 12, color: "#475569" }}>Bank: {data.bankDetails.bankName}</div>}
-            {data.bankDetails.accountName && <div style={{ fontSize: 12, color: "#475569" }}>A/C: {data.bankDetails.accountName}</div>}
-            {data.bankDetails.accountNumber && <div style={{ fontSize: 12, color: "#475569" }}>No: {data.bankDetails.accountNumber}</div>}
-            {data.bankDetails.ifscCode && <div style={{ fontSize: 12, color: "#475569" }}>IFSC: {data.bankDetails.ifscCode}</div>}
-            {data.bankDetails.upiId && <div style={{ fontSize: 12, color: "#475569", marginTop: 6 }}>UPI: {data.bankDetails.upiId}</div>}
-          </div>
-        )}
+        <BankBlock data={data} accentColor="#475569" />
         <div>
           {data.notes && <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.7, marginBottom: 10 }}>{data.notes}</div>}
           {data.terms && <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.6 }}>{data.terms}</div>}

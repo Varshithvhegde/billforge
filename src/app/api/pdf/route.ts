@@ -1,14 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { InvoiceData, TemplateId } from "@/types/invoice";
 import { buildInvoiceHtml } from "@/lib/invoice-html";
+import QRCode from "qrcode";
+
+async function generateUpiQrDataUrl(upiId: string, name: string): Promise<string> {
+  const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&cu=INR`;
+  return QRCode.toDataURL(upiUrl, {
+    width: 200,
+    margin: 1,
+    color: { dark: "#000000", light: "#ffffff" },
+    errorCorrectionLevel: "M",
+  });
+}
 
 export async function POST(req: NextRequest) {
   const { data, templateId }: { data: InvoiceData; templateId: TemplateId } = await req.json();
 
-  const html = buildInvoiceHtml(data, templateId);
+  // Pre-generate QR server-side so Puppeteer can embed it inline
+  let qrDataUrl: string | undefined;
+  if (data.bankDetails?.upiId) {
+    qrDataUrl = await generateUpiQrDataUrl(data.bankDetails.upiId, data.fromName || "");
+  }
 
-  // Puppeteer is a Node.js-only module — dynamic import keeps it out of the
-  // edge runtime and avoids bundling it into the client.
+  const html = buildInvoiceHtml(data, templateId, qrDataUrl);
+
   const puppeteer = await import("puppeteer");
   const browser = await puppeteer.default.launch({
     headless: true,
@@ -17,9 +32,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const page = await browser.newPage();
-
     await page.setContent(html, { waitUntil: "load" });
-    // Extra wait for web fonts to finish rendering
     await new Promise((r) => setTimeout(r, 800));
 
     const pdf = await page.pdf({
@@ -28,9 +41,7 @@ export async function POST(req: NextRequest) {
       margin: { top: 0, right: 0, bottom: 0, left: 0 },
     });
 
-    const pdfBuffer = Buffer.from(pdf);
-
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(Buffer.from(pdf), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

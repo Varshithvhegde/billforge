@@ -1,6 +1,6 @@
 import React from "react";
 import type { TemplateProps } from "./shared";
-import { LineItemsTable, TotalsBlock } from "./shared";
+import { LineItemsTable, TotalsBlock, BankBlock } from "./shared";
 
 export function StudioTemplate({ data, totals, formatCurrency, formatDate }: TemplateProps) {
   const purple = "#1e1b4b";
@@ -49,13 +49,7 @@ export function StudioTemplate({ data, totals, formatCurrency, formatDate }: Tem
 
         {(data.bankDetails.bankName || data.bankDetails.upiId) && (
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 20, marginTop: "auto" }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: 2, marginBottom: 10 }}>Payment</div>
-            <div style={{ fontSize: 11, color: "#a5b4fc", lineHeight: 1.8 }}>
-              {data.bankDetails.bankName && <div>{data.bankDetails.bankName}</div>}
-              {data.bankDetails.accountNumber && <div>A/C: {data.bankDetails.accountNumber}</div>}
-              {data.bankDetails.ifscCode && <div>IFSC: {data.bankDetails.ifscCode}</div>}
-              {data.bankDetails.upiId && <div style={{ color: accent, fontWeight: 600, marginTop: 4 }}>{data.bankDetails.upiId}</div>}
-            </div>
+            <BankBlock data={data} accentColor={accent} />
           </div>
         )}
       </div>

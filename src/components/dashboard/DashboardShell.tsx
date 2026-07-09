@@ -2,13 +2,14 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, LayoutDashboard, Settings, LogOut, Plus, User } from "lucide-react";
+import { FileText, LayoutDashboard, Settings, LogOut, Plus, User, BarChart3 } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { signOut } from "@/lib/auth/actions";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard", label: "Documents", icon: LayoutDashboard },
+  { href: "/dashboard/gst-report", label: "GST Report", icon: BarChart3 },
 ];
 
 const SETTINGS_NAV = [

@@ -1,6 +1,6 @@
 import React from "react";
 import type { TemplateProps } from "./shared";
-import { LineItemsTable, TotalsBlock } from "./shared";
+import { LineItemsTable, TotalsBlock, BankBlock } from "./shared";
 
 export function MinimalTemplate({ data, totals, formatCurrency, formatDate }: TemplateProps) {
   const accent = "#6366f1";
@@ -81,16 +81,7 @@ export function MinimalTemplate({ data, totals, formatCurrency, formatDate }: Te
 
       {/* Bank & Notes */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, marginTop: 48 }}>
-        {(data.bankDetails.bankName || data.bankDetails.upiId) && (
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 10 }}>Payment Details</div>
-            {data.bankDetails.bankName && <div style={{ fontSize: 12, color: "#475569" }}>Bank: {data.bankDetails.bankName}</div>}
-            {data.bankDetails.accountName && <div style={{ fontSize: 12, color: "#475569" }}>A/C Name: {data.bankDetails.accountName}</div>}
-            {data.bankDetails.accountNumber && <div style={{ fontSize: 12, color: "#475569" }}>A/C No: {data.bankDetails.accountNumber}</div>}
-            {data.bankDetails.ifscCode && <div style={{ fontSize: 12, color: "#475569" }}>IFSC: {data.bankDetails.ifscCode}</div>}
-            {data.bankDetails.upiId && <div style={{ fontSize: 12, color: "#475569", marginTop: 6 }}>UPI: {data.bankDetails.upiId}</div>}
-          </div>
-        )}
+        <BankBlock data={data} accentColor={accent} />
         <div>
           {data.notes && (
             <>

@@ -1,6 +1,6 @@
 import React from "react";
 import type { TemplateProps } from "./shared";
-import { LineItemsTable, TotalsBlock } from "./shared";
+import { LineItemsTable, TotalsBlock, BankBlock } from "./shared";
 
 export function ArcticTemplate({ data, totals, formatCurrency, formatDate }: TemplateProps) {
   const blue = "#0ea5e9";
@@ -67,16 +67,7 @@ export function ArcticTemplate({ data, totals, formatCurrency, formatDate }: Tem
         <TotalsBlock data={data} totals={totals} formatCurrency={formatCurrency} formatDate={formatDate} />
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, marginTop: 56 }}>
-          {(data.bankDetails.bankName || data.bankDetails.upiId) && (
-            <div style={{ backgroundColor: light, borderRadius: 12, padding: "20px 24px" }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: blue, textTransform: "uppercase", letterSpacing: 2, marginBottom: 10 }}>Payment Details</div>
-              {data.bankDetails.bankName && <div style={{ fontSize: 12, color: "#475569" }}>Bank: {data.bankDetails.bankName}</div>}
-              {data.bankDetails.accountName && <div style={{ fontSize: 12, color: "#475569" }}>A/C: {data.bankDetails.accountName}</div>}
-              {data.bankDetails.accountNumber && <div style={{ fontSize: 12, color: "#475569" }}>No: {data.bankDetails.accountNumber}</div>}
-              {data.bankDetails.ifscCode && <div style={{ fontSize: 12, color: "#475569" }}>IFSC: {data.bankDetails.ifscCode}</div>}
-              {data.bankDetails.upiId && <div style={{ fontSize: 12, color: blue, fontWeight: 700, marginTop: 6 }}>UPI: {data.bankDetails.upiId}</div>}
-            </div>
-          )}
+          <BankBlock data={data} accentColor={blue} />
           <div>
             {data.notes && <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.8 }}>{data.notes}</div>}
             {data.terms && <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.6, marginTop: 10 }}>{data.terms}</div>}

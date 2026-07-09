@@ -1,6 +1,6 @@
 import React from "react";
 import type { TemplateProps } from "./shared";
-import { LineItemsTable, TotalsBlock } from "./shared";
+import { LineItemsTable, TotalsBlock, BankBlock } from "./shared";
 
 export function BoldTemplate({ data, totals, formatCurrency, formatDate }: TemplateProps) {
   const isProposal = data.documentType === "proposal";
@@ -66,16 +66,7 @@ export function BoldTemplate({ data, totals, formatCurrency, formatDate }: Templ
         <TotalsBlock data={data} totals={totals} formatCurrency={formatCurrency} formatDate={formatDate} />
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, marginTop: 48 }}>
-          {(data.bankDetails.bankName || data.bankDetails.upiId) && (
-            <div style={{ padding: "16px 20px", backgroundColor: "#f8fafc", borderRadius: 8 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "#0f172a", textTransform: "uppercase", letterSpacing: 2, marginBottom: 10 }}>Payment Details</div>
-              {data.bankDetails.bankName && <div style={{ fontSize: 12, color: "#475569" }}>Bank: {data.bankDetails.bankName}</div>}
-              {data.bankDetails.accountName && <div style={{ fontSize: 12, color: "#475569" }}>A/C Name: {data.bankDetails.accountName}</div>}
-              {data.bankDetails.accountNumber && <div style={{ fontSize: 12, color: "#475569" }}>A/C No: {data.bankDetails.accountNumber}</div>}
-              {data.bankDetails.ifscCode && <div style={{ fontSize: 12, color: "#475569" }}>IFSC: {data.bankDetails.ifscCode}</div>}
-              {data.bankDetails.upiId && <div style={{ fontSize: 13, fontWeight: 700, color: "#4f46e5", marginTop: 8 }}>UPI: {data.bankDetails.upiId}</div>}
-            </div>
-          )}
+          <BankBlock data={data} accentColor="#6366f1" />
           <div>
             {data.notes && <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.7, marginBottom: 12 }}>{data.notes}</div>}
             {data.terms && <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.6 }}>{data.terms}</div>}

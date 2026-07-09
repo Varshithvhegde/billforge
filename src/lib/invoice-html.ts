@@ -1,11 +1,11 @@
 import type { InvoiceData, TemplateId } from "@/types/invoice";
 import { calculateTotals, formatCurrency, formatDate } from "./calculations";
 
-export function buildInvoiceHtml(data: InvoiceData, templateId: TemplateId): string {
+export function buildInvoiceHtml(data: InvoiceData, templateId: TemplateId, qrDataUrl?: string): string {
   const totals = calculateTotals(data);
   const isProposal = data.documentType === "proposal";
 
-  const bodyMap: Record<string, (d: InvoiceData, t: ReturnType<typeof calculateTotals>, p: boolean) => string> = {
+  const bodyMap: Record<string, (d: InvoiceData, t: ReturnType<typeof calculateTotals>, p: boolean, q?: string) => string> = {
     minimal: minimalBody,
     classic: classicBody,
     bold: boldBody,
@@ -17,7 +17,7 @@ export function buildInvoiceHtml(data: InvoiceData, templateId: TemplateId): str
     arctic: arcticBody,
     executive: executiveBody,
   };
-  const body = (bodyMap[templateId] ?? minimalBody)(data, totals, isProposal);
+  const body = (bodyMap[templateId] ?? minimalBody)(data, totals, isProposal, qrDataUrl);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -103,7 +103,7 @@ function totalsHtml(data: InvoiceData, totals: ReturnType<typeof calculateTotals
   </div>`;
 }
 
-function bankHtml(data: InvoiceData): string {
+function bankHtml(data: InvoiceData, qrDataUrl?: string): string {
   const b = data.bankDetails;
   if (!b.bankName && !b.upiId) return "";
   return `
@@ -114,6 +114,15 @@ function bankHtml(data: InvoiceData): string {
     ${b.accountNumber ? `<div style="font-size:12px;color:#475569">A/C No: ${esc(b.accountNumber)}</div>` : ""}
     ${b.ifscCode ? `<div style="font-size:12px;color:#475569">IFSC: ${esc(b.ifscCode)}</div>` : ""}
     ${b.upiId ? `<div style="font-size:12px;color:#475569;margin-top:6px">UPI: ${esc(b.upiId)}</div>` : ""}
+    ${qrDataUrl && b.upiId ? `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:8px;margin-top:12px;background:#f8fafc">
+      <img src="${qrDataUrl}" alt="UPI QR" style="width:64px;height:64px;border-radius:4px;flex-shrink:0"/>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Pay via UPI</div>
+        <div style="font-size:12px;font-weight:600;color:#0f172a">${esc(b.upiId)}</div>
+        <div style="font-size:10px;color:#64748b;margin-top:2px">Scan with any UPI app</div>
+      </div>
+    </div>` : ""}
   </div>`;
 }
 
@@ -130,7 +139,7 @@ function notesHtml(data: InvoiceData): string {
 
 // ─── Templates ────────────────────────────────────────────────────────────────
 
-function minimalBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean): string {
+function minimalBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean, qrDataUrl?: string): string {
   const accent = "#6366f1";
   return `
   <div style="padding:56px 64px;min-height:297mm;color:#0f172a;font-family:'Inter',sans-serif">
@@ -188,7 +197,7 @@ function minimalBody(data: InvoiceData, totals: ReturnType<typeof calculateTotal
     ${totalsHtml(data, totals)}
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px">
-      ${bankHtml(data)}
+      ${bankHtml(data, qrDataUrl)}
       ${notesHtml(data)}
     </div>
 
@@ -199,7 +208,7 @@ function minimalBody(data: InvoiceData, totals: ReturnType<typeof calculateTotal
   </div>`;
 }
 
-function classicBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean): string {
+function classicBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean, qrDataUrl?: string): string {
   const accent = "#1e3a5f";
   return `
   <div style="min-height:297mm;color:#0f172a;font-family:'Inter',sans-serif">
@@ -263,14 +272,14 @@ function classicBody(data: InvoiceData, totals: ReturnType<typeof calculateTotal
       ${totalsHtml(data, totals)}
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px">
-        ${bankHtml(data)}
+        ${bankHtml(data, qrDataUrl)}
         ${notesHtml(data)}
       </div>
     </div>
   </div>`;
 }
 
-function boldBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean): string {
+function boldBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean, qrDataUrl?: string): string {
   return `
   <div style="min-height:297mm;color:#0f172a;font-family:'Inter',sans-serif">
     <div style="background:#0f172a;padding:56px 64px 40px">
@@ -319,7 +328,7 @@ function boldBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>,
       ${totalsHtml(data, totals)}
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px">
-        <div style="padding:16px 20px;background:#f8fafc;border-radius:8px">${bankHtml(data)}</div>
+        <div style="padding:16px 20px;background:#f8fafc;border-radius:8px">${bankHtml(data, qrDataUrl)}</div>
         ${notesHtml(data)}
       </div>
 
@@ -328,7 +337,7 @@ function boldBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>,
   </div>`;
 }
 
-function elegantBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean): string {
+function elegantBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean, qrDataUrl?: string): string {
   const gold = "#b45309";
   return `
   <div style="min-height:297mm;color:#1c1917;font-family:'EB Garamond','Georgia',serif">
@@ -375,7 +384,7 @@ function elegantBody(data: InvoiceData, totals: ReturnType<typeof calculateTotal
       ${totalsHtml(data, totals)}
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px">
-        ${bankHtml(data)}
+        ${bankHtml(data, qrDataUrl)}
         ${notesHtml(data)}
       </div>
     </div>
@@ -383,7 +392,7 @@ function elegantBody(data: InvoiceData, totals: ReturnType<typeof calculateTotal
   </div>`;
 }
 
-function studioBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean): string {
+function studioBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean, qrDataUrl?: string): string {
   const purple = "#1e1b4b";
   const accent = "#818cf8";
   return `
@@ -444,7 +453,7 @@ function studioBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals
   </div>`;
 }
 
-function slateBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean): string {
+function slateBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean, qrDataUrl?: string): string {
   return `
   <div style="min-height:297mm;color:#1e293b;font-family:'Inter',sans-serif;padding:56px 64px;background:white">
     <div style="height:2px;background:#475569;margin-bottom:48px"></div>
@@ -477,14 +486,14 @@ function slateBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>
     ${lineItemsHtml(data)}
     ${totalsHtml(data, totals)}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px">
-      ${bankHtml(data)}
+      ${bankHtml(data, qrDataUrl)}
       ${notesHtml(data)}
     </div>
     <div style="height:2px;background:#e2e8f0;margin-top:40px"></div>
   </div>`;
 }
 
-function neonBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean): string {
+function neonBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean, qrDataUrl?: string): string {
   const cyan = "#06b6d4";
   const magenta = "#d946ef";
   const gstRows = !data.enableGST ? "" : data.gstType === "CGST+SGST" ? `
@@ -570,7 +579,7 @@ function neonBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>,
   </div>`;
 }
 
-function terraBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean): string {
+function terraBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean, qrDataUrl?: string): string {
   const terra = "#c2410c";
   return `
   <div style="min-height:297mm;background:#faf9f7;color:#78350f;font-family:'Georgia',serif">
@@ -609,7 +618,7 @@ function terraBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>
       ${lineItemsHtml(data)}
       ${totalsHtml(data, totals)}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px">
-        ${bankHtml(data)}
+        ${bankHtml(data, qrDataUrl)}
         ${notesHtml(data)}
       </div>
     </div>
@@ -617,7 +626,7 @@ function terraBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>
   </div>`;
 }
 
-function arcticBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean): string {
+function arcticBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean, qrDataUrl?: string): string {
   const blue = "#0ea5e9";
   return `
   <div style="min-height:297mm;background:white;color:#0c4a6e;font-family:'Inter',sans-serif">
@@ -677,7 +686,7 @@ function arcticBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals
   </div>`;
 }
 
-function executiveBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean): string {
+function executiveBody(data: InvoiceData, totals: ReturnType<typeof calculateTotals>, isProposal: boolean, qrDataUrl?: string): string {
   const navy = "#0f1729";
   const gold = "#d4af37";
   return `
@@ -728,7 +737,7 @@ function executiveBody(data: InvoiceData, totals: ReturnType<typeof calculateTot
       ${lineItemsHtml(data)}
       ${totalsHtml(data, totals)}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:52px;padding-top:36px;border-top:1px solid #e2e8f0">
-        ${bankHtml(data)}
+        ${bankHtml(data, qrDataUrl)}
         ${notesHtml(data)}
       </div>
     </div>

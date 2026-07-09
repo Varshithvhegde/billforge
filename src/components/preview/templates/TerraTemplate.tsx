@@ -1,6 +1,6 @@
 import React from "react";
 import type { TemplateProps } from "./shared";
-import { LineItemsTable, TotalsBlock } from "./shared";
+import { LineItemsTable, TotalsBlock, BankBlock } from "./shared";
 
 export function TerraTemplate({ data, totals, formatCurrency, formatDate }: TemplateProps) {
   const terracotta = "#c2410c";
@@ -76,16 +76,7 @@ export function TerraTemplate({ data, totals, formatCurrency, formatDate }: Temp
         <TotalsBlock data={data} totals={totals} formatCurrency={formatCurrency} formatDate={formatDate} />
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, marginTop: 48 }}>
-          {(data.bankDetails.bankName || data.bankDetails.upiId) && (
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: terracotta, textTransform: "uppercase", letterSpacing: 2, marginBottom: 10, borderBottom: `2px solid ${terracotta}`, paddingBottom: 6, display: "inline-block" }}>Payment</div>
-              {data.bankDetails.bankName && <div style={{ fontSize: 12, color: "#92400e" }}>Bank: {data.bankDetails.bankName}</div>}
-              {data.bankDetails.accountName && <div style={{ fontSize: 12, color: "#92400e" }}>A/C: {data.bankDetails.accountName}</div>}
-              {data.bankDetails.accountNumber && <div style={{ fontSize: 12, color: "#92400e" }}>No: {data.bankDetails.accountNumber}</div>}
-              {data.bankDetails.ifscCode && <div style={{ fontSize: 12, color: "#92400e" }}>IFSC: {data.bankDetails.ifscCode}</div>}
-              {data.bankDetails.upiId && <div style={{ fontSize: 12, color: terracotta, fontWeight: 600, marginTop: 4 }}>UPI: {data.bankDetails.upiId}</div>}
-            </div>
-          )}
+          <BankBlock data={data} accentColor={terracotta} />
           <div>
             {data.notes && <div style={{ fontSize: 12, color: "#92400e", lineHeight: 1.7, fontStyle: "italic" }}>{data.notes}</div>}
             {data.terms && <div style={{ fontSize: 11, color: "#a8a29e", lineHeight: 1.6, marginTop: 10 }}>{data.terms}</div>}

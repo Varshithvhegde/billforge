@@ -1,4 +1,6 @@
+import React from "react";
 import type { InvoiceData } from "@/types/invoice";
+import { UpiQrBlock } from "../UpiQrBlock";
 
 export interface TemplateProps {
   data: InvoiceData;
@@ -40,6 +42,28 @@ export function LineItemsTable({ data, formatCurrency }: TemplateProps) {
         ))}
       </tbody>
     </table>
+  );
+}
+
+// Reusable bank details + UPI QR block for all templates
+export function BankBlock({ data, accentColor = "#6366f1" }: { data: InvoiceData; accentColor?: string }) {
+  const b = data.bankDetails;
+  const hasBank = b.bankName || b.accountNumber || b.upiId;
+  if (!hasBank) return null;
+  return (
+    <div>
+      <div style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 10 }}>Payment Details</div>
+      {b.bankName && <div style={{ fontSize: 12, color: "#475569" }}>Bank: {b.bankName}</div>}
+      {b.accountName && <div style={{ fontSize: 12, color: "#475569" }}>A/C Name: {b.accountName}</div>}
+      {b.accountNumber && <div style={{ fontSize: 12, color: "#475569" }}>A/C No: {b.accountNumber}</div>}
+      {b.ifscCode && <div style={{ fontSize: 12, color: "#475569" }}>IFSC: {b.ifscCode}</div>}
+      {b.upiId && <div style={{ fontSize: 12, color: "#475569", marginTop: 6 }}>UPI: {b.upiId}</div>}
+      {b.upiId && (
+        <div style={{ marginTop: 12 }}>
+          <UpiQrBlock upiId={b.upiId} name={data.fromName} amount={0} accentColor={accentColor} />
+        </div>
+      )}
+    </div>
   );
 }
 

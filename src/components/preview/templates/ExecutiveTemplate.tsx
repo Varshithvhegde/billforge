@@ -1,6 +1,6 @@
 import React from "react";
 import type { TemplateProps } from "./shared";
-import { LineItemsTable, TotalsBlock } from "./shared";
+import { LineItemsTable, TotalsBlock, BankBlock } from "./shared";
 
 export function ExecutiveTemplate({ data, totals, formatCurrency, formatDate }: TemplateProps) {
   const navy = "#0f1729";
@@ -75,16 +75,7 @@ export function ExecutiveTemplate({ data, totals, formatCurrency, formatDate }: 
         <TotalsBlock data={data} totals={totals} formatCurrency={formatCurrency} formatDate={formatDate} />
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, marginTop: 52, paddingTop: 36, borderTop: `1px solid #e2e8f0` }}>
-          {(data.bankDetails.bankName || data.bankDetails.upiId) && (
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: gold, textTransform: "uppercase", letterSpacing: 3, marginBottom: 12, fontFamily: "'Inter', sans-serif" }}>Banking Details</div>
-              {data.bankDetails.bankName && <div style={{ fontSize: 12, color: "#475569" }}>Bank: {data.bankDetails.bankName}</div>}
-              {data.bankDetails.accountName && <div style={{ fontSize: 12, color: "#475569" }}>A/C Name: {data.bankDetails.accountName}</div>}
-              {data.bankDetails.accountNumber && <div style={{ fontSize: 12, color: "#475569" }}>A/C No: {data.bankDetails.accountNumber}</div>}
-              {data.bankDetails.ifscCode && <div style={{ fontSize: 12, color: "#475569" }}>IFSC: {data.bankDetails.ifscCode}</div>}
-              {data.bankDetails.upiId && <div style={{ fontSize: 12, fontWeight: 700, color: navy, marginTop: 6 }}>UPI: {data.bankDetails.upiId}</div>}
-            </div>
-          )}
+          <BankBlock data={data} accentColor={gold} />
           <div>
             {data.notes && <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.8, fontStyle: "italic" }}>{data.notes}</div>}
             {data.terms && <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.7, marginTop: 10 }}>{data.terms}</div>}
