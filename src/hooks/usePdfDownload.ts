@@ -1,47 +1,29 @@
 "use client";
 import { useState } from "react";
+import { useInvoiceStore } from "@/store/invoice-store";
 
 export function usePdfDownload() {
   const [loading, setLoading] = useState(false);
+  const { data, templateId } = useInvoiceStore();
 
   async function downloadPdf(filename = "invoice.pdf") {
     setLoading(true);
     try {
-      const { default: html2canvas } = await import("html2canvas");
-      const { default: jsPDF } = await import("jspdf");
-
-      const element = document.getElementById("invoice-preview");
-      if (!element) return;
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-        onclone: (clonedDoc) => {
-          // Strip all stylesheets — the preview uses only inline styles with
-          // plain hex values, so Tailwind's oklch/lab CSS vars aren't needed
-          // and html2canvas can't parse them.
-          clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach((el) => el.remove());
-          const preview = clonedDoc.getElementById("invoice-preview");
-          if (preview) {
-            preview.style.backgroundColor = "#ffffff";
-          }
-        },
+      const res = await fetch("/api/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data, templateId }),
       });
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
+      if (!res.ok) throw new Error(`PDF generation failed: ${res.statusText}`);
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(filename);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
     } finally {
       setLoading(false);
     }

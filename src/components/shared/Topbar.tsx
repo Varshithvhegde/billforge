@@ -13,8 +13,6 @@ export function Topbar() {
   const { data, reset } = useInvoiceStore();
   const { downloadPdf, loading } = usePdfDownload();
 
-  const filename = `${data.documentType}-${data.invoiceNumber || "001"}.pdf`;
-
   return (
     <header className="h-12 border-b border-white/[0.06] flex items-center justify-between px-4 flex-shrink-0">
       {/* Logo */}
@@ -46,7 +44,7 @@ export function Topbar() {
         </Tooltip>
 
         <button
-          onClick={() => downloadPdf(filename)}
+          onClick={() => downloadPdf(`${data.documentType}-${data.invoiceNumber || "001"}.pdf`)}
           disabled={loading}
           className="flex items-center gap-1.5 h-7 px-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-xs font-medium rounded-md transition-colors"
         >
