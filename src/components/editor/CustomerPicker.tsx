@@ -62,14 +62,12 @@ export function CustomerPicker() {
     <>
       <div className="flex gap-1.5 mb-1">
         <DropdownMenu open={open} onOpenChange={setOpen}>
-          <DropdownMenuTrigger>
-            <button className="flex-1 flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-xs text-zinc-400 transition-colors">
-              <Users size={11} />
-              <span className="flex-1 text-left truncate">
-                {savedCustomers.length === 0 ? "No saved customers" : "Load customer..."}
-              </span>
-              <ChevronDown size={11} />
-            </button>
+          <DropdownMenuTrigger className="flex-1 flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-xs text-zinc-400 transition-colors">
+            <Users size={11} />
+            <span className="flex-1 text-left truncate">
+              {savedCustomers.length === 0 ? "No saved customers" : "Load customer..."}
+            </span>
+            <ChevronDown size={11} />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-64 bg-zinc-900 border-white/[0.1] p-1" align="start">
             <div className="flex items-center gap-2 px-2 py-1.5 mb-1 border-b border-white/[0.06]">
