@@ -14,6 +14,7 @@ import { CustomFieldsEditor } from "./CustomFieldsEditor";
 import { ProfilePicker } from "./ProfilePicker";
 import { CustomerPicker } from "./CustomerPicker";
 import { SignatureEditor } from "./SignatureEditor";
+import { BankPicker } from "./BankPicker";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function EditorPanel() {
@@ -183,6 +184,7 @@ export function EditorPanel() {
 
         {/* Bank Details */}
         <SectionHeader icon={<CreditCard size={14} />} title="Bank / UPI Details" defaultOpen={false}>
+          <BankPicker />
           <Field label="Bank Name" value={data.bankDetails.bankName} onChange={(v) => update({ bankDetails: { ...data.bankDetails, bankName: v } })} placeholder="HDFC Bank" />
           <Field label="Account Name" value={data.bankDetails.accountName} onChange={(v) => update({ bankDetails: { ...data.bankDetails, accountName: v } })} placeholder="Rahul Sharma" />
           <div className="grid grid-cols-2 gap-2">

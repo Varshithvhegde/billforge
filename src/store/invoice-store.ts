@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { InvoiceData, TemplateId, SavedProfile, SavedCustomer } from "@/types/invoice";
+import type { InvoiceData, TemplateId, SavedProfile, SavedCustomer, SavedBankAccount } from "@/types/invoice";
 
 const defaultInvoice: InvoiceData = {
   documentType: "invoice",
@@ -42,6 +42,7 @@ interface InvoiceStore {
   templateId: TemplateId;
   savedProfiles: SavedProfile[];
   savedCustomers: SavedCustomer[];
+  savedBankAccounts: SavedBankAccount[];
 
   update: (patch: Partial<InvoiceData>) => void;
   setTemplate: (id: TemplateId) => void;
@@ -67,6 +68,11 @@ interface InvoiceStore {
   loadCustomer: (id: string) => void;
   deleteCustomer: (id: string) => void;
   updateCustomer: (id: string, patch: Partial<Omit<SavedCustomer, "id" | "createdAt">>) => void;
+
+  // Bank accounts
+  saveBankAccount: (account: Omit<SavedBankAccount, "id">) => void;
+  loadBankAccount: (id: string) => void;
+  deleteBankAccount: (id: string) => void;
 }
 
 export const useInvoiceStore = create<InvoiceStore>()(
@@ -74,6 +80,7 @@ export const useInvoiceStore = create<InvoiceStore>()(
     (set, get) => ({
       data: defaultInvoice,
       templateId: "minimal",
+      savedBankAccounts: [],
       savedProfiles: [],
       savedCustomers: [],
 
@@ -197,6 +204,36 @@ export const useInvoiceStore = create<InvoiceStore>()(
             c.id === id ? { ...c, ...patch } : c
           ),
         })),
+
+      saveBankAccount: (account) =>
+        set((s) => {
+          const id = Date.now().toString();
+          const accounts = account.isDefault
+            ? s.savedBankAccounts.map((a) => ({ ...a, isDefault: false }))
+            : [...s.savedBankAccounts];
+          return { savedBankAccounts: [...accounts, { ...account, id }] };
+        }),
+
+      loadBankAccount: (id) =>
+        set((s) => {
+          const account = s.savedBankAccounts.find((a) => a.id === id);
+          if (!account) return s;
+          return {
+            data: {
+              ...s.data,
+              bankDetails: {
+                bankName: account.bankName,
+                accountName: account.accountName,
+                accountNumber: account.accountNumber,
+                ifscCode: account.ifscCode,
+                upiId: account.upiId,
+              },
+            },
+          };
+        }),
+
+      deleteBankAccount: (id) =>
+        set((s) => ({ savedBankAccounts: s.savedBankAccounts.filter((a) => a.id !== id) })),
     }),
     { name: "billforge-v2" }
   )

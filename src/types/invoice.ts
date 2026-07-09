@@ -102,6 +102,17 @@ export interface SavedProfile {
   isDefault: boolean;
 }
 
+export interface SavedBankAccount {
+  id: string;
+  label: string; // e.g. "HDFC Savings", "Paytm UPI"
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  ifscCode: string;
+  upiId: string;
+  isDefault: boolean;
+}
+
 export interface SavedCustomer {
   id: string;
   name: string;
