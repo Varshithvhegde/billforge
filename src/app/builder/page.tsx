@@ -20,6 +20,7 @@ function BuilderInner() {
     status: "idle" | "saving" | "saved" | "error";
     lastSaved: Date | null;
   }>({ status: "idle", lastSaved: null });
+  const [initialShareToken, setInitialShareToken] = useState<string | null>(null);
 
   // Load document from Supabase when ?id= is present
   useEffect(() => {
@@ -35,6 +36,7 @@ function BuilderInner() {
         if (!doc) return;
         update(doc.data as InvoiceData);
         setTemplate(doc.template_id as TemplateId);
+        setInitialShareToken((doc as { share_token?: string | null }).share_token ?? null);
       });
   }, [docId, update, setTemplate]);
 
@@ -43,7 +45,7 @@ function BuilderInner() {
 
   return (
     <div className="flex flex-col h-screen bg-[#111113] text-white overflow-hidden">
-      <Topbar docId={docId ?? undefined} saveStatus={saveStatus} onSaveStatusChange={setSaveStatus} />
+      <Topbar docId={docId ?? undefined} saveStatus={saveStatus} onSaveStatusChange={setSaveStatus} initialShareToken={initialShareToken} />
 
       <div className="flex flex-1 overflow-hidden">
         <div className="w-72 flex-shrink-0 border-r border-white/[0.06] flex flex-col overflow-hidden">

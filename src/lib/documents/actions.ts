@@ -16,6 +16,8 @@ export type DocumentRow = {
   client_name: string;
   created_at: string;
   updated_at: string;
+  share_token: string | null;
+  is_public: boolean;
 };
 
 export async function getDocuments(): Promise<DocumentRow[]> {
@@ -106,4 +108,26 @@ export async function updateDocumentStatus(
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/dashboard");
+}
+
+export async function generateShareLink(id: string): Promise<string> {
+  const supabase = await createClient();
+  const token = crypto.randomUUID();
+  const { error } = await supabase
+    .from("documents")
+    .update({ share_token: token, is_public: true })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/builder");
+  return token;
+}
+
+export async function revokeShareLink(id: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("documents")
+    .update({ share_token: null, is_public: false })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/builder");
 }

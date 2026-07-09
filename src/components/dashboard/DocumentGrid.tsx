@@ -57,34 +57,42 @@ export function DocumentGrid({ documents }: Props) {
 
 function DocumentCard({ doc }: { doc: DocumentRow }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const btnRef = React.useRef<HTMLButtonElement>(null);
 
   const status = STATUS_CONFIG[doc.status] ?? STATUS_CONFIG.draft;
   const StatusIcon = status.icon;
   const templateColor = TEMPLATE_COLORS[doc.template_id] || "bg-indigo-600";
 
-  function handleDelete() {
-    if (!confirm("Delete this document?")) return;
-    startTransition(async () => {
-      await deleteDocument(doc.id);
+  function openMenu() {
+    if (!btnRef.current) return;
+    const rect = btnRef.current.getBoundingClientRect();
+    setMenuPos({
+      top: rect.bottom + 4,
+      right: window.innerWidth - rect.right,
     });
+    setMenuOpen(true);
+  }
+
+  function handleDelete() {
+    setMenuOpen(false);
+    if (!confirm("Delete this document?")) return;
+    startTransition(async () => { await deleteDocument(doc.id); });
   }
 
   function handleStatusChange(s: "draft" | "sent" | "paid") {
     setMenuOpen(false);
-    startTransition(async () => {
-      await updateDocumentStatus(doc.id, s);
-    });
+    startTransition(async () => { await updateDocumentStatus(doc.id, s); });
   }
 
   return (
     <div className={cn(
-      "group relative rounded-xl border border-white/[0.07] bg-zinc-900/40 overflow-hidden transition-all hover:border-white/[0.15] hover:bg-zinc-900/70",
+      "group relative rounded-xl border border-white/[0.07] bg-zinc-900/40 transition-all hover:border-white/[0.15] hover:bg-zinc-900/70",
       isPending && "opacity-50 pointer-events-none"
     )}>
-      {/* Mini A4 preview thumbnail */}
-      <Link href={`/builder?id=${doc.id}`} className="block">
+      {/* Thumbnail — overflow-hidden only on this section */}
+      <Link href={`/builder?id=${doc.id}`} className="block rounded-t-xl overflow-hidden">
         <div className={cn("h-36 flex items-center justify-center relative", templateColor)}>
           <div className="w-24 h-32 bg-white rounded-sm shadow-xl flex flex-col p-1.5 gap-1">
             <div className="h-2 bg-zinc-200 rounded-sm w-3/4" />
@@ -97,7 +105,6 @@ function DocumentCard({ doc }: { doc: DocumentRow }) {
             <div className="h-0.5 bg-zinc-300 rounded-full w-full" />
             <div className="h-1.5 bg-zinc-800 rounded-sm w-1/2 self-end" />
           </div>
-          {/* Doc type badge */}
           <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/40 text-[10px] text-white/80 font-medium capitalize">
             {doc.document_type}
           </div>
@@ -117,53 +124,57 @@ function DocumentCard({ doc }: { doc: DocumentRow }) {
               {formatDistanceToNow(new Date(doc.updated_at), { addSuffix: true })}
             </div>
           </div>
-          {/* More menu */}
-          <div className="relative flex-shrink-0">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="w-6 h-6 rounded flex items-center justify-center text-zinc-600 hover:text-zinc-300 hover:bg-white/[0.06] transition-colors"
-            >
-              <MoreHorizontal size={14} />
-            </button>
-            {menuOpen && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-7 z-20 w-44 bg-zinc-800 border border-white/[0.1] rounded-xl shadow-xl overflow-hidden py-1">
-                  <Link
-                    href={`/builder?id=${doc.id}`}
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-300 hover:bg-white/[0.06] transition-colors"
-                  >
-                    <Edit2 size={12} /> Edit
-                  </Link>
-                  <div className="h-px bg-white/[0.06] my-1" />
-                  <div className="px-3 py-1 text-[10px] text-zinc-600 uppercase tracking-wider">Mark as</div>
-                  {(["draft", "sent", "paid"] as const).map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => handleStatusChange(s)}
-                      className={cn(
-                        "w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors",
-                        doc.status === s ? "text-indigo-300 bg-indigo-500/10" : "text-zinc-300 hover:bg-white/[0.06]"
-                      )}
-                    >
-                      {s === "draft" && <Clock size={12} />}
-                      {s === "sent" && <Send size={12} />}
-                      {s === "paid" && <CheckCircle size={12} />}
-                      <span className="capitalize">{s}</span>
-                    </button>
-                  ))}
-                  <div className="h-px bg-white/[0.06] my-1" />
+
+          {/* More menu — portal-style fixed dropdown */}
+          <button
+            ref={btnRef}
+            onClick={openMenu}
+            className="w-6 h-6 rounded flex items-center justify-center text-zinc-600 hover:text-zinc-300 hover:bg-white/[0.06] transition-colors flex-shrink-0"
+          >
+            <MoreHorizontal size={14} />
+          </button>
+
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+              <div
+                className="fixed z-50 w-44 bg-zinc-800 border border-white/[0.1] rounded-xl shadow-2xl overflow-hidden py-1"
+                style={{ top: menuPos.top, right: menuPos.right }}
+              >
+                <Link
+                  href={`/builder?id=${doc.id}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-300 hover:bg-white/[0.06] transition-colors"
+                >
+                  <Edit2 size={12} /> Edit
+                </Link>
+                <div className="h-px bg-white/[0.06] my-1" />
+                <div className="px-3 py-1 text-[10px] text-zinc-600 uppercase tracking-wider">Mark as</div>
+                {(["draft", "sent", "paid"] as const).map((s) => (
                   <button
-                    onClick={handleDelete}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+                    key={s}
+                    onClick={() => handleStatusChange(s)}
+                    className={cn(
+                      "w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors",
+                      doc.status === s ? "text-indigo-300 bg-indigo-500/10" : "text-zinc-300 hover:bg-white/[0.06]"
+                    )}
                   >
-                    <Trash2 size={12} /> Delete
+                    {s === "draft" && <Clock size={12} />}
+                    {s === "sent" && <Send size={12} />}
+                    {s === "paid" && <CheckCircle size={12} />}
+                    <span className="capitalize">{s}</span>
                   </button>
-                </div>
-              </>
-            )}
-          </div>
+                ))}
+                <div className="h-px bg-white/[0.06] my-1" />
+                <button
+                  onClick={handleDelete}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+                >
+                  <Trash2 size={12} /> Delete
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Status + amount */}

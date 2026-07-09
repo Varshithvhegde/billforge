@@ -31,6 +31,12 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // Public routes — never require auth
+  const publicPaths = ["/view/"];
+  if (publicPaths.some((p) => pathname.startsWith(p))) {
+    return supabaseResponse;
+  }
+
   // Protected routes — redirect to login if not authenticated
   const protectedPaths = ["/dashboard", "/builder"];
   const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
