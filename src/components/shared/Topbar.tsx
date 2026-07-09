@@ -36,13 +36,11 @@ export function Topbar() {
       {/* Actions */}
       <div className="flex items-center gap-2">
         <Tooltip>
-          <TooltipTrigger>
-            <button
-              onClick={reset}
-              className="w-7 h-7 rounded-md flex items-center justify-center text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.06] transition-colors"
-            >
-              <RotateCcw size={14} />
-            </button>
+          <TooltipTrigger
+            onClick={reset}
+            className="w-7 h-7 rounded-md flex items-center justify-center text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.06] transition-colors"
+          >
+            <RotateCcw size={14} />
           </TooltipTrigger>
           <TooltipContent>Reset form</TooltipContent>
         </Tooltip>
