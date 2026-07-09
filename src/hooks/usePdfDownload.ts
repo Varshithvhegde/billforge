@@ -18,6 +18,16 @@ export function usePdfDownload() {
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
+        onclone: (clonedDoc) => {
+          // Strip all stylesheets — the preview uses only inline styles with
+          // plain hex values, so Tailwind's oklch/lab CSS vars aren't needed
+          // and html2canvas can't parse them.
+          clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach((el) => el.remove());
+          const preview = clonedDoc.getElementById("invoice-preview");
+          if (preview) {
+            preview.style.backgroundColor = "#ffffff";
+          }
+        },
       });
 
       const imgData = canvas.toDataURL("image/png");
