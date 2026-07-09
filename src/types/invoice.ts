@@ -6,6 +6,14 @@ export interface LineItem {
   quantity: number;
   rate: number;
   amount: number;
+  unit?: string;
+  taxRate?: number; // per-line tax override
+}
+
+export interface CustomField {
+  id: string;
+  label: string;
+  value: string;
 }
 
 export interface BankDetails {
@@ -24,6 +32,7 @@ export interface InvoiceData {
   fromPhone: string;
   fromAddress: string;
   fromGSTIN: string;
+  fromLogo?: string;
   // To
   toName: string;
   toEmail: string;
@@ -39,20 +48,38 @@ export interface InvoiceData {
   lineItems: LineItem[];
   // Taxes
   enableGST: boolean;
-  gstRate: number; // 0, 5, 12, 18, 28
+  gstRate: number;
   gstType: "CGST+SGST" | "IGST";
+  // Discount
+  enableDiscount: boolean;
+  discountType: "percent" | "fixed";
+  discountValue: number;
   // Notes
   notes: string;
   terms: string;
   // Bank
   bankDetails: BankDetails;
+  // Custom fields
+  customFields: CustomField[];
   // Proposal extras
   validUntil: string;
   projectTitle: string;
   projectScope: string;
+  // Signature
+  signatureName: string;
 }
 
-export type TemplateId = "minimal" | "classic" | "bold" | "elegant";
+export type TemplateId =
+  | "minimal"
+  | "classic"
+  | "bold"
+  | "elegant"
+  | "studio"
+  | "slate"
+  | "neon"
+  | "terra"
+  | "arctic"
+  | "executive";
 
 export interface Template {
   id: TemplateId;
@@ -60,4 +87,24 @@ export interface Template {
   description: string;
   accentColor: string;
   preview: string;
+}
+
+export interface SavedProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  gstin: string;
+  isDefault: boolean;
+}
+
+export interface SavedCustomer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  gstin: string;
+  createdAt: string;
 }
