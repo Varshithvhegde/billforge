@@ -87,10 +87,21 @@ export function TotalsBlock({ data, totals, formatCurrency }: TemplateProps) {
           <span>Total</span>
           <span>{formatCurrency(totals.total, data.currency)}</span>
         </div>
-        {data.signatureName && (
+        {(data.signatureName || data.signatureImage) && (
           <div style={{ marginTop: 32, paddingTop: 8, borderTop: "1px solid #e2e8f0", textAlign: "right" }}>
+            {data.signatureImage && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={data.signatureImage}
+                alt="Signature"
+                style={{ maxHeight: 48, maxWidth: 160, objectFit: "contain", marginLeft: "auto", display: "block", marginBottom: 4 }}
+              />
+            )}
+            {!data.signatureImage && (
+              <div style={{ borderBottom: "1px solid #94a3b8", width: 120, marginLeft: "auto", marginBottom: 4 }} />
+            )}
             <div style={{ fontSize: 11, color: "#94a3b8" }}>Authorised Signatory</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", marginTop: 2 }}>{data.signatureName}</div>
+            {data.signatureName && <div style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", marginTop: 2 }}>{data.signatureName}</div>}
           </div>
         )}
       </div>

@@ -94,7 +94,11 @@ function totalsHtml(data: InvoiceData, totals: ReturnType<typeof calculateTotals
       <div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f172a;margin-top:4px;font-size:16px;font-weight:700;color:#0f172a">
         <span>Total</span><span>${formatCurrency(totals.total, data.currency)}</span>
       </div>
-      ${data.signatureName ? `<div style="margin-top:32px;padding-top:8px;border-top:1px solid #e2e8f0;text-align:right"><div style="font-size:11px;color:#94a3b8">Authorised Signatory</div><div style="font-size:13px;font-weight:600;color:#1e293b;margin-top:2px">${esc(data.signatureName)}</div></div>` : ""}
+      ${data.signatureName || data.signatureImage ? `<div style="margin-top:32px;padding-top:8px;border-top:1px solid #e2e8f0;text-align:right">
+        ${data.signatureImage ? `<img src="${data.signatureImage}" alt="Signature" style="max-height:48px;max-width:160px;object-fit:contain;margin-left:auto;display:block;margin-bottom:4px"/>` : `<div style="border-bottom:1px solid #94a3b8;width:120px;margin-left:auto;margin-bottom:4px"></div>`}
+        <div style="font-size:11px;color:#94a3b8">Authorised Signatory</div>
+        ${data.signatureName ? `<div style="font-size:13px;font-weight:600;color:#1e293b;margin-top:2px">${esc(data.signatureName)}</div>` : ""}
+      </div>` : ""}
     </div>
   </div>`;
 }

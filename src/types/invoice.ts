@@ -67,6 +67,7 @@ export interface InvoiceData {
   projectScope: string;
   // Signature
   signatureName: string;
+  signatureImage?: string; // base64 data URL
 }
 
 export type TemplateId =

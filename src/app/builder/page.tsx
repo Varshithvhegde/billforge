@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, useEffect, useRef } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { EditorPanel } from "@/components/editor/EditorPanel";
 import { InvoicePreview } from "@/components/preview/InvoicePreview";
@@ -8,20 +8,23 @@ import { Topbar } from "@/components/shared/Topbar";
 import { TotalsBar } from "@/components/shared/TotalsBar";
 import { useInvoiceStore } from "@/store/invoice-store";
 import { createClient } from "@/lib/supabase/client";
+import { useAutoSave } from "@/hooks/useAutoSave";
 import type { InvoiceData, TemplateId } from "@/types/invoice";
-import { calculateTotals } from "@/lib/calculations";
 
 function BuilderInner() {
   const { data, templateId, update, setTemplate } = useInvoiceStore();
   const searchParams = useSearchParams();
   const docId = searchParams.get("id");
   const loadedRef = useRef<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<{
+    status: "idle" | "saving" | "saved" | "error";
+    lastSaved: Date | null;
+  }>({ status: "idle", lastSaved: null });
 
   // Load document from Supabase when ?id= is present
   useEffect(() => {
     if (!docId || loadedRef.current === docId) return;
     loadedRef.current = docId;
-
     const supabase = createClient();
     supabase
       .from("documents")
@@ -35,32 +38,12 @@ function BuilderInner() {
       });
   }, [docId, update, setTemplate]);
 
-  // Auto-save every 30s for existing docs
-  useEffect(() => {
-    if (!docId) return;
-    const interval = setInterval(async () => {
-      const supabase = createClient();
-      const { total } = calculateTotals(data);
-      await supabase
-        .from("documents")
-        .update({
-          data,
-          template_id: templateId,
-          total,
-          client_name: data.toName || "",
-          title: data.toName
-            ? `${data.documentType === "invoice" ? "Invoice" : "Proposal"} for ${data.toName}`
-            : data.invoiceNumber || "Untitled",
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", docId);
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [docId, data, templateId]);
+  // Auto-save on every change with 1.5s debounce
+  useAutoSave(docId, data, templateId, setSaveStatus);
 
   return (
     <div className="flex flex-col h-screen bg-[#111113] text-white overflow-hidden">
-      <Topbar docId={docId ?? undefined} />
+      <Topbar docId={docId ?? undefined} saveStatus={saveStatus} onSaveStatusChange={setSaveStatus} />
 
       <div className="flex flex-1 overflow-hidden">
         <div className="w-72 flex-shrink-0 border-r border-white/[0.06] flex flex-col overflow-hidden">

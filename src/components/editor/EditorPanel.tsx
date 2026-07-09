@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import {
   User, Users, FileText, Hash, Building2, CreditCard,
-  StickyNote, Plus, Sparkles, PenLine, Percent, BookUser,
+  StickyNote, Plus, Sparkles, PenLine, Percent,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { LineItemsEditor } from "./LineItemsEditor";
 import { CustomFieldsEditor } from "./CustomFieldsEditor";
 import { ProfilePicker } from "./ProfilePicker";
 import { CustomerPicker } from "./CustomerPicker";
+import { SignatureEditor } from "./SignatureEditor";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function EditorPanel() {
@@ -193,8 +194,7 @@ export function EditorPanel() {
 
         {/* Signature */}
         <SectionHeader icon={<PenLine size={14} />} title="Signature" defaultOpen={false}>
-          <Field label="Signatory Name" value={data.signatureName} onChange={(v) => update({ signatureName: v })} placeholder="Rahul Sharma" />
-          <p className="text-[11px] text-zinc-600 leading-snug">Name printed below signature line on the invoice.</p>
+          <SignatureEditor />
         </SectionHeader>
 
         {/* Notes */}

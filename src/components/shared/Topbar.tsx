@@ -1,7 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { Download, RotateCcw, FileText, Loader2, Save, LayoutDashboard, Check } from "lucide-react";
+import {
+  Download, RotateCcw, FileText, Loader2, Save,
+  LayoutDashboard, Check, AlertCircle, Cloud, Share2
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useInvoiceStore } from "@/store/invoice-store";
 import { usePdfDownload } from "@/hooks/usePdfDownload";
@@ -11,32 +14,68 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+
+interface SaveStatus {
+  status: "idle" | "saving" | "saved" | "error";
+  lastSaved: Date | null;
+}
 
 interface Props {
   docId?: string;
+  saveStatus?: SaveStatus;
+  onSaveStatusChange?: (s: SaveStatus) => void;
+  shareToken?: string | null;
+  onShareClick?: () => void;
 }
 
-export function Topbar({ docId }: Props) {
+export function Topbar({ docId, saveStatus, onSaveStatusChange, shareToken, onShareClick }: Props) {
   const { data, templateId, reset } = useInvoiceStore();
   const { downloadPdf, loading: pdfLoading } = usePdfDownload();
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [manualSaving, setManualSaving] = useState(false);
   const router = useRouter();
 
-  async function handleSave() {
-    setSaving(true);
+  async function handleManualSave() {
+    setManualSaving(true);
+    onSaveStatusChange?.({ status: "saving", lastSaved: null });
     try {
       const { id } = await saveDocument(data, templateId, docId);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-      // If new doc, redirect to ?id= so future saves update the same record
-      if (!docId) {
-        router.replace(`/builder?id=${id}`);
-      }
+      onSaveStatusChange?.({ status: "saved", lastSaved: new Date() });
+      setTimeout(() => onSaveStatusChange?.({ status: "idle", lastSaved: new Date() }), 2000);
+      if (!docId) router.replace(`/builder?id=${id}`);
+    } catch {
+      onSaveStatusChange?.({ status: "error", lastSaved: null });
     } finally {
-      setSaving(false);
+      setManualSaving(false);
     }
   }
+
+  const isSaving = manualSaving || saveStatus?.status === "saving";
+
+  const SaveIndicator = () => {
+    if (!docId) return null;
+    if (isSaving) return (
+      <span className="flex items-center gap-1 text-[11px] text-zinc-500">
+        <Loader2 size={10} className="animate-spin" /> Saving…
+      </span>
+    );
+    if (saveStatus?.status === "saved") return (
+      <span className="flex items-center gap-1 text-[11px] text-emerald-400">
+        <Check size={10} /> Saved
+      </span>
+    );
+    if (saveStatus?.status === "error") return (
+      <span className="flex items-center gap-1 text-[11px] text-red-400">
+        <AlertCircle size={10} /> Save failed
+      </span>
+    );
+    if (saveStatus?.lastSaved) return (
+      <span className="flex items-center gap-1 text-[11px] text-zinc-600">
+        <Cloud size={10} /> Auto-saved
+      </span>
+    );
+    return null;
+  };
 
   return (
     <header className="h-12 border-b border-white/[0.06] flex items-center justify-between px-4 flex-shrink-0">
@@ -53,18 +92,14 @@ export function Topbar({ docId }: Props) {
         </span>
       </div>
 
-      {/* Center */}
-      <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+      {/* Center — doc number + save status */}
+      <div className="flex items-center gap-3 text-xs text-zinc-500">
         <span className="text-zinc-400 font-medium">{data.invoiceNumber || "—"}</span>
-        {saved && (
-          <span className="flex items-center gap-1 text-emerald-400 text-[11px]">
-            <Check size={11} /> Saved
-          </span>
-        )}
+        <SaveIndicator />
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <Link
           href="/dashboard"
           className="w-7 h-7 rounded-md flex items-center justify-center text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.06] transition-colors"
@@ -83,12 +118,31 @@ export function Topbar({ docId }: Props) {
           <TooltipContent>Reset form</TooltipContent>
         </Tooltip>
 
+        {/* Share button */}
+        {onShareClick && (
+          <button
+            onClick={onShareClick}
+            className={cn(
+              "flex items-center gap-1.5 h-7 px-2.5 rounded-md border text-xs font-medium transition-colors relative",
+              shareToken
+                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                : "border-white/[0.1] bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]"
+            )}
+          >
+            <Share2 size={12} />
+            Share
+            {shareToken && (
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400" />
+            )}
+          </button>
+        )}
+
         <button
-          onClick={handleSave}
-          disabled={saving}
+          onClick={handleManualSave}
+          disabled={isSaving}
           className="flex items-center gap-1.5 h-7 px-3 border border-white/[0.1] hover:border-white/20 bg-white/[0.04] hover:bg-white/[0.07] text-zinc-200 text-xs font-medium rounded-md transition-colors disabled:opacity-50"
         >
-          {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+          {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
           Save
         </button>
 
@@ -98,7 +152,7 @@ export function Topbar({ docId }: Props) {
           className="flex items-center gap-1.5 h-7 px-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-xs font-medium rounded-md transition-colors"
         >
           {pdfLoading ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
-          Download PDF
+          PDF
         </button>
       </div>
     </header>
